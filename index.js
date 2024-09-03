@@ -7,21 +7,41 @@ app.use(express.json());
 const cors = require("cors");
 app.use(cors());
 
-const db = mysql.createConnection({
-  host: "brhbm2qdamv5vvlodwd6-mysql.services.clever-cloud.com",
-  user: "udznwgiob6lngucm",
-  password: "ONVXuK29rrbzz8AjXAOF",
-  database: "brhbm2qdamv5vvlodwd6",
-  port: 3306,
-});
+let db;
 
-db.connect((err) => {
-  if (err) {
-    console.error("Error connecting to the database:", err);
-    return;
-  }
-  console.log("Connected to the MySQL database.");
-});
+function handleDisconnect() {
+  db = mysql.createConnection({
+    host: "brhbm2qdamv5vvlodwd6-mysql.services.clever-cloud.com",
+    user: "udznwgiob6lngucm",
+    password: "ONVXuK29rrbzz8AjXAOF",
+    database: "brhbm2qdamv5vvlodwd6",
+    port: 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
+
+  db.connect((err) => {
+    if (err) {
+      console.error("Error connecting to the database:", err);
+      setTimeout(handleDisconnect, 2000);
+    } else {
+      console.log("Connected to the MySQL database.");
+    }
+  });
+
+  db.on("error", (err) => {
+    console.error("Database error:", err);
+    if (err.code === "PROTOCOL_CONNECTION_LOST" || err.fatal) {
+      handleDisconnect();
+    } else {
+      throw err;
+    }
+  });
+}
+
+handleDisconnect();
+
 app.get("/contacts", (req, res) => {
   const query = "select * from contacts";
   db.query(query, (err, result) => {
@@ -47,16 +67,17 @@ app.get("/contacts/:id", (req, res) => {
   });
 });
 app.post("/add-contact", (req, res) => {
-  const { firstname, lastname, email, phonenumber, company_name, address } =
+  const { id, firstname, lastname, email, phonenumber, company_name, address } =
     req.body;
 
   if (
+    (!id,
     !firstname ||
-    !lastname ||
-    !email ||
-    !phonenumber ||
-    !company_name ||
-    !address
+      !lastname ||
+      !email ||
+      !phonenumber ||
+      !company_name ||
+      !address)
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
