@@ -8,10 +8,11 @@ const cors = require("cors");
 app.use(cors());
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "Srujana@123",
-  database: "suppilerdatabse",
+  host: "brhbm2qdamv5vvlodwd6-mysql.services.clever-cloud.com",
+  user: "udznwgiob6lngucm",
+  password: "ONVXuK29rrbzz8AjXAOF",
+  database: "brhbm2qdamv5vvlodwd6",
+  port: 3306,
 });
 
 db.connect((err) => {
