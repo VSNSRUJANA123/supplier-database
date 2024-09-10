@@ -55,7 +55,7 @@ app.post("/add-contact", (req, res) => {
     lastname,
     email,
     phonenumber,
-    job_title,
+    // job_title,
     company_name,
     address,
   } = req.body;
@@ -66,18 +66,18 @@ app.post("/add-contact", (req, res) => {
       !lastname ||
       !email ||
       !phonenumber ||
-      !job_title ||
+      // !job_title ||
       !company_name ||
       !address)
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const query = `INSERT INTO contacts (firstname, lastname,email, phonenumber, job_title,company_name, address) 
-                   VALUES (?, ?, ?, ?,?, ?,?)`;
+  const query = `INSERT INTO contacts (firstname, lastname,email, phonenumber, company_name, address) 
+                   VALUES (?, ?, ?, ?,?, ?)`;
   db.query(
     query,
-    [firstname, lastname, email, phonenumber, job_title, company_name, address],
+    [firstname, lastname, email, phonenumber, company_name, address],
     (err, result) => {
       if (err) {
         console.error("Error inserting data:", err);
@@ -92,32 +92,15 @@ app.post("/add-contact", (req, res) => {
 });
 app.put("/update-contact/:id", (req, res) => {
   const { id } = req.params;
-  const {
-    firstname,
-    lastname,
-    email,
-    phonenumber,
-    job_title,
-    company_name,
-    address,
-  } = req.body;
+  const { firstname, lastname, email, phonenumber, company_name, address } =
+    req.body;
   const query = `update contacts set firstname=?,lastname=?,email=?,
-    phonenumber=?,
-    job_title=?,
+    phonenumber=?,    
     company_name=?,
     address=? where id=?`;
   db.query(
     query,
-    [
-      firstname,
-      lastname,
-      email,
-      phonenumber,
-      job_title,
-      company_name,
-      address,
-      id,
-    ],
+    [firstname, lastname, email, phonenumber, company_name, address, id],
     (err, result) => {
       if (err) {
         return res.status(500).json({ error: "Failed to update column" });
