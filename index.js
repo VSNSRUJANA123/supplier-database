@@ -9,10 +9,10 @@ const cors = require("cors");
 app.use(cors());
 
 const db = mysql.createPool({
-  host: "185.199.52.156",
-  user: "inventoryapp",
-  database: "inventory",
-  password: "iLKodMll10XJhBi1lgTp",
+  host: process.env.HOST,
+  user: process.env.USER,
+  database: process.env.DATABASE,
+  password: process.env.PASSWORD,
 });
 
 db.getConnection((err, connection) => {
