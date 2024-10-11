@@ -12,11 +12,11 @@ const orderstatus = require("./routers/orderStatus");
 dotenv.config();
 const cors = require("cors");
 app.use(cors());
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-  })
-);
+// app.use(
+//   cors({
+//     origin: "https://inventory-app-inky-two.vercel.app/",
+//   })
+// );
 
 app.use(express.json());
 
