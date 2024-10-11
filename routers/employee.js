@@ -34,6 +34,7 @@ router.post("/", (req, res) => {
     email,
     phonenumber,
     job_title,
+    password,
     company_name,
     address,
   } = req.body;
@@ -44,18 +45,28 @@ router.post("/", (req, res) => {
     !email ||
     !phonenumber ||
     !job_title ||
+    !password ||
     !company_name ||
     !address
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const query = `INSERT INTO employees (firstname, lastname, email, phonenumber, job_title,company_name, address)
-                 VALUES (?, ?, ?, ?, ?, ?,?)`;
+  const query = `INSERT INTO employees (firstname, lastname, email, phonenumber, job_title,password,company_name, address)
+                 VALUES (?, ?, ?, ?, ?, ?,?,?)`;
 
   db.query(
     query,
-    [firstname, lastname, email, phonenumber, job_title, company_name, address],
+    [
+      firstname,
+      lastname,
+      email,
+      phonenumber,
+      job_title,
+      password,
+      company_name,
+      address,
+    ],
     (err, result) => {
       if (err) {
         console.error("Error inserting data:", err);
@@ -77,11 +88,12 @@ router.put("/:id", (req, res) => {
     email,
     phonenumber,
     job_title,
+    password,
     company_name,
     address,
   } = req.body;
 
-  const query = `UPDATE employees SET firstname = ?, lastname = ?, email = ?, phonenumber = ?,job_title=?, company_name = ?, address = ? WHERE id = ?`;
+  const query = `UPDATE employees SET firstname = ?, lastname = ?, email = ?, phonenumber = ?,job_title=?,password=?, company_name = ?, address = ? WHERE id = ?`;
   db.query(
     query,
     [
@@ -90,6 +102,7 @@ router.put("/:id", (req, res) => {
       email,
       phonenumber,
       job_title,
+      password,
       company_name,
       address,
       id,
@@ -113,6 +126,7 @@ router.delete("/:id", (req, res) => {
 
   db.query(query, [id], (err, result) => {
     if (err) {
+      console.log(err);
       return res.status(500).send({ error: "Failed to delete employee" });
     }
     if (result.affectedRows === 0) {

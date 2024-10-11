@@ -144,7 +144,8 @@ router.put("/:id", (req, res) => {
     website=?,
     description=?,
     addedBy=? WHERE id = ?`;
-
+    const websiteValue = website ? website : null;
+    const descriptionValue = description ? description : null;
     db.query(
       query,
       [
@@ -158,8 +159,8 @@ router.put("/:id", (req, res) => {
         city,
         state,
         zip,
-        website,
-        description,
+        websiteValue,
+        descriptionValue,
         addedBy,
         productIndex,
       ],
@@ -178,15 +179,28 @@ router.put("/:id", (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
-  const query = `DELETE FROM suppliers WHERE id = ?`;
-  db.query(query, [id], (err, result) => {
+  const checkQuery = "SELECT * FROM orders WHERE supplierId = ?";
+  db.query(checkQuery, [id], (err, orders) => {
     if (err) {
-      return res.status(500).send({ error: "Failed to delete supplier" });
+      return res.status(500).send("Error checking orders");
     }
-    if (result.affectedRows === 0) {
-      return res.status(404).send({ error: "Supplier not found" });
+
+    if (orders.length > 0) {
+      return res
+        .status(400)
+        .json({ error: "Cannot delete supplier with existing orders" });
     }
-    res.status(200).json({ message: "Supplier deleted successfully" });
+    const query = `DELETE FROM suppliers WHERE id = ?`;
+    db.query(query, [id], (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).send({ error: "Failed to delete supplier" });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).send({ error: "Supplier not found" });
+      }
+      res.status(200).json({ message: "Supplier deleted successfully" });
+    });
   });
 });
 
