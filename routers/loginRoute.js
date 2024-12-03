@@ -3,7 +3,15 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const dbConnection = require("../config/db");
-
+const cors = require("cors");
+const app = express();
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 router.post("/register", (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
