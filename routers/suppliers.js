@@ -45,64 +45,61 @@ router.post("/", (req, res) => {
     zip,
     website,
     description,
-    addedBy,
   } = req.body;
-
-  const employeeQuery = "SELECT * FROM employees WHERE id = ?";
-  db.query(employeeQuery, [addedBy], (err, employeeResult) => {
-    if (err) {
-      console.error("Error checking employeeId:", err);
-      return res.status(500).json({ error: "Failed to verify employeeId" });
-    }
-    if (employeeResult.length === 0) {
-      return res.status(404).json({ error: "Employee ID does not exist" });
-    }
-    const supplierQuery = `INSERT INTO suppliers (firstname,
-    lastname,
-    email,
-    phonenumber,
-    company_name,
-    jobtitle,
-    address,
-    city,
-    state,
-    zip,
-    website,
-    description,
-    addedBy)
-    VALUES (?, ?, ?, ?, ? , ? , ? , ? , ? , ? , ? , ? ,?)`;
-    db.query(
-      supplierQuery,
-      [
-        firstname,
-        lastname,
-        email,
-        phonenumber,
-        company_name,
-        jobtitle,
-        address,
-        city,
-        state,
-        zip,
-        website,
-        description,
-        addedBy,
-      ],
-      (err, result) => {
-        if (err) {
-          console.error("Error inserting supplier data:", err);
-          return res.status(500).json({ error: "Failed to add supplier" });
-        }
-        res.status(201).json({
-          message: "Supplier added successfully",
-          supplierId: result.insertId,
-        });
+  if (
+    !firstname ||
+    !lastname ||
+    !email ||
+    !phonenumber ||
+    !company_name ||
+    !jobtitle ||
+    !address ||
+    !city ||
+    !state ||
+    !zip
+  ) {
+    return res.status(403).send("required fields");
+  }
+  const supplierQuery = `insert into suppliers(firstname,
+lastname,
+email,
+phonenumber,
+company_name,
+jobtitle,
+address,
+city,
+state,
+zip,
+website,
+description) values(?,?,?,?,?,?,?,?,?,?,?,?)`;
+  db.query(
+    supplierQuery,
+    [
+      firstname,
+      lastname,
+      email,
+      phonenumber,
+      company_name,
+      jobtitle,
+      address,
+      city,
+      state,
+      zip,
+      website,
+      description,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Error inserting supplier data:", err);
+        return res.status(500).json({ error: "Failed to add supplier" });
       }
-    );
-  });
+      res.status(201).json({
+        message: "Supplier added successfully",
+      });
+    }
+  );
 });
 
-// Update supplier by ID
 router.put("/:id", (req, res) => {
   const productIndex = req.params.id;
   const {
@@ -118,18 +115,30 @@ router.put("/:id", (req, res) => {
     zip,
     website,
     description,
-    addedBy,
   } = req.body;
-
-  const employeeQuery = "SELECT * FROM employees WHERE id = ?";
-  db.query(employeeQuery, [addedBy], (err, employeeResult) => {
+  if (
+    !firstname ||
+    !lastname ||
+    !email ||
+    !phonenumber ||
+    !company_name ||
+    !jobtitle ||
+    !address ||
+    !city ||
+    !state ||
+    !zip
+  ) {
+    return res.status(403).send("required fields");
+  }
+  const employeeQuery = "SELECT * FROM suppliers WHERE id = ?";
+  db.query(employeeQuery, [productIndex], (err, employeeResult) => {
     if (err) {
       console.error("Error checking employeeId:", err);
       return res.status(500).json({ error: "Failed to verify employeeId" });
     }
 
     if (employeeResult.length === 0) {
-      return res.status(404).json({ error: "Employee ID does not exist" });
+      return res.status(404).json({ error: "product not found" });
     }
     const query = `UPDATE suppliers SET firstname=?,
     lastname=?,
@@ -142,8 +151,8 @@ router.put("/:id", (req, res) => {
     state=?,
     zip=?,
     website=?,
-    description=?,
-    addedBy=? WHERE id = ?`;
+    description=?
+    WHERE id = ?`;
     const websiteValue = website ? website : null;
     const descriptionValue = description ? description : null;
     db.query(
@@ -161,7 +170,6 @@ router.put("/:id", (req, res) => {
         zip,
         websiteValue,
         descriptionValue,
-        addedBy,
         productIndex,
       ],
       (err, result) => {
@@ -179,28 +187,16 @@ router.put("/:id", (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
-  const checkQuery = "SELECT * FROM orders WHERE supplierId = ?";
-  db.query(checkQuery, [id], (err, orders) => {
+  const query = `DELETE FROM suppliers WHERE id = ?`;
+  db.query(query, [id], (err, result) => {
     if (err) {
-      return res.status(500).send("Error checking orders");
+      console.log(err);
+      return res.status(500).send("Failed to delete supplier");
     }
-
-    if (orders.length > 0) {
-      return res
-        .status(400)
-        .json({ error: "Cannot delete supplier with existing orders" });
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Supplier not found");
     }
-    const query = `DELETE FROM suppliers WHERE id = ?`;
-    db.query(query, [id], (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).send({ error: "Failed to delete supplier" });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).send({ error: "Supplier not found" });
-      }
-      res.status(200).json({ message: "Supplier deleted successfully" });
-    });
+    res.status(200).json({ message: "Supplier deleted successfully" });
   });
 });
 

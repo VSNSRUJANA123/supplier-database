@@ -34,9 +34,9 @@ router.post("/", (req, res) => {
     email,
     phonenumber,
     job_title,
-    password,
     company_name,
     address,
+    status,
   } = req.body;
 
   if (
@@ -45,14 +45,13 @@ router.post("/", (req, res) => {
     !email ||
     !phonenumber ||
     !job_title ||
-    !password ||
     !company_name ||
     !address
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const query = `INSERT INTO employees (firstname, lastname, email, phonenumber, job_title,password,company_name, address)
+  const query = `INSERT INTO employees (firstname, lastname, email, phonenumber, job_title,company_name, address,status)
                  VALUES (?, ?, ?, ?, ?, ?,?,?)`;
 
   db.query(
@@ -63,9 +62,9 @@ router.post("/", (req, res) => {
       email,
       phonenumber,
       job_title,
-      password,
       company_name,
       address,
+      status,
     ],
     (err, result) => {
       if (err) {
@@ -82,18 +81,29 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
   const { id } = req.params;
+
   const {
     firstname,
     lastname,
     email,
     phonenumber,
     job_title,
-    password,
     company_name,
     address,
+    status,
   } = req.body;
-
-  const query = `UPDATE employees SET firstname = ?, lastname = ?, email = ?, phonenumber = ?,job_title=?,password=?, company_name = ?, address = ? WHERE id = ?`;
+  if (
+    !firstname ||
+    !lastname ||
+    !email ||
+    !phonenumber ||
+    !job_title ||
+    !company_name ||
+    !address
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  const query = `UPDATE employees SET firstname = ?, lastname = ?, email = ?,phonenumber=?,job_title=?, company_name = ?, address = ?,status=? WHERE id = ?`;
   db.query(
     query,
     [
@@ -102,13 +112,14 @@ router.put("/:id", (req, res) => {
       email,
       phonenumber,
       job_title,
-      password,
       company_name,
       address,
+      status,
       id,
     ],
     (err, result) => {
       if (err) {
+        // console.log(err);
         return res.status(500).json({ error: "Failed to update employee" });
       }
       if (result.affectedRows === 0) {
