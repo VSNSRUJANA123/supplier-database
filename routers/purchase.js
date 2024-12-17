@@ -2,6 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  return res.send("it is a purchase");
+  return res.status(200).json({ message: "it is a purchase" });
 });
 module.exports = router;
