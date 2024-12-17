@@ -64,7 +64,7 @@ router.post("/login", (req, res) => {
     return res.status(403).send("user doesn't exist create account");
   });
 });
-router.get("/user", (req, res) => {
+router.get("/", (req, res) => {
   const sqlQuery = "select * from user";
   dbConnection.query(sqlQuery, (err, result) => {
     if (err) {
@@ -73,4 +73,5 @@ router.get("/user", (req, res) => {
     return res.status(200).send(result);
   });
 });
+
 module.exports = router;
